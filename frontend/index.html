@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sunset Motel</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <header class="site-header">
+    <div class="logo">
+      <a href="#">
+        <img src="logo.png" alt="Sunset Motel Logo">
+      </a>
+    </div>
+
+    <nav>
+      <a href="#">Home</a>
+      <a href="#rooms">Rooms</a>
+      <a href="#amenities">Amenities</a>
+      <a href="#location">Location</a>
+      <a href="#contact">Contact</a>
+      <a href="#" class="btn">Book Now</a>
+      <a href="admin.html" class="btn">Admin</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <p class="eyebrow">Welcome to Sunset Motel</p>
+      <h1>Comfortable Stays, Affordable Prices</h1>
+      <p>Clean rooms, friendly service, and everything you need for a relaxing stay.</p>
+
+      <form class="booking-form" onsubmit="checkAvailability(event)">
+        <div>
+          <label>Check-in</label>
+          <input type="date" id="checkIn">
+        </div>
+
+        <div>
+          <label>Check-out</label>
+          <input type="date" id="checkOut">
+        </div>
+
+        <div>
+          <label>Guests</label>
+          <select id="guests">
+            <option value="1">1 Guest</option>
+            <option value="2">2 Guests</option>
+            <option value="3">3 Guests</option>
+            <option value="4">4 Guests</option>
+          </select>
+        </div>
+
+        <button type="submit">Check Availability</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="availability-results" id="availabilityResults">
+    <h2>Available Rooms</h2>
+    <p id="availabilityMessage">Select dates above to check available rooms.</p>
+    <div class="available-room-grid" id="availableRoomGrid"></div>
+  </section>
+
+  <section class="guest-booking-form" id="guestBookingForm">
+    <h2>Complete Your Booking</h2>
+    <p id="selectedRoomMessage">Select an available room to continue.</p>
+    <p id="bookingConfirmationMessage"></p>
+
+    <form onsubmit="submitBooking(event)">
+      <input type="hidden" id="selectedRoomId">
+
+      <div>
+        <label>Full Name</label>
+        <input type="text" id="guestName" required>
+      </div>
+
+      <div>
+        <label>Email</label>
+        <input type="email" id="guestEmail" required>
+      </div>
+
+      <div>
+        <label>Phone</label>
+        <input type="text" id="guestPhone">
+      </div>
+
+      <button type="submit">Confirm Booking</button>
+    </form>
+  </section>
+
+  <section class="features">
+    <div>
+      <i class="fa-solid fa-wifi"></i>
+      <h3>Free Wi-Fi</h3>
+      <p>Stay connected during your visit.</p>
+    </div>
+
+    <div>
+      <i class="fa-solid fa-square-parking"></i>
+      <h3>Free Parking</h3>
+      <p>Convenient on-site parking.</p>
+    </div>
+
+    <div>
+      <i class="fa-solid fa-paw"></i>
+      <h3>Pet Friendly</h3>
+      <p>Bring your furry companion.</p>
+    </div>
+
+    <div>
+      <i class="fa-solid fa-clock"></i>
+      <h3>24/7 Front Desk</h3>
+      <p>Help is always available.</p>
+    </div>
+  </section>
+
+  <section class="rooms" id="rooms">
+    <h2>Our Rooms</h2>
+    <p>Choose from comfortable rooms designed for rest and convenience.</p>
+
+    <div class="room-grid" id="roomGrid"></div>
+  </section>
+
+  <section class="amenities" id="amenities">
+    <h2>Amenities</h2>
+    <p>Simple comforts that make your stay easier.</p>
+
+    <div class="amenity-grid">
+      <div>
+        <i class="fa-solid fa-person-swimming"></i>
+        <span>Outdoor Pool</span>
+      </div>
+
+      <div>
+        <i class="fa-solid fa-shirt"></i>
+        <span>Laundry</span>
+      </div>
+
+      <div>
+        <i class="fa-solid fa-snowflake"></i>
+        <span>Air Conditioning</span>
+      </div>
+
+      <div>
+        <i class="fa-solid fa-tv"></i>
+        <span>Flat Screen TV</span>
+      </div>
+
+      <div>
+        <i class="fa-solid fa-mug-saucer"></i>
+        <span>Morning Coffee</span>
+      </div>
+
+      <div>
+        <i class="fa-solid fa-store"></i>
+        <span>Vending Machines</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="location" id="location">
+    <div>
+      <h2>Great Location</h2>
+      <p>Conveniently located near restaurants, shopping, gas stations, and local attractions.</p>
+
+      <p>
+        <i class="fa-solid fa-location-dot"></i>
+        123 Main Street<br>
+        Billings, MT 59101
+      </p>
+
+      <p>
+        <i class="fa-solid fa-phone"></i>
+        (406) 555-1234
+      </p>
+    </div>
+
+    <iframe
+      src="https://www.google.com/maps?q=Billings,MT&output=embed"
+      width="100%"
+      height="300"
+      style="border:0; border-radius:10px;"
+      allowfullscreen>
+    </iframe>
+  </section>
+
+  <section class="reviews">
+    <h2>What Our Guests Say</h2>
+
+    <div class="review-grid">
+      <div>
+        <p class="stars">★★★★★</p>
+        <p>“Clean, comfortable, and affordable.”</p>
+        <strong>- John D.</strong>
+      </div>
+
+      <div>
+        <p class="stars">★★★★★</p>
+        <p>“Great location and quiet rooms.”</p>
+        <strong>- Sarah M.</strong>
+      </div>
+
+      <div>
+        <p class="stars">★★★★★</p>
+        <p>“Excellent value for the price.”</p>
+        <strong>- Mike T.</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div>
+      <h2>Ready to book your stay?</h2>
+      <p>Best rates guaranteed when you book direct.</p>
+    </div>
+
+    <a href="#" class="btn">Book Your Stay</a>
+  </section>
+
+  <footer id="contact">
+    <div>
+      <h3>Sunset Motel</h3>
+      <p>Comfortable stays. Affordable rates.</p>
+    </div>
+
+    <div>
+      <h4>Quick Links</h4>
+      <p>Home<br>Rooms<br>Amenities<br>Location<br>Contact</p>
+    </div>
+
+    <div>
+      <h4>Contact Us</h4>
+      <p>
+        <i class="fa-solid fa-phone"></i> (406) 555-1234<br>
+        <i class="fa-solid fa-envelope"></i> info@sunsetmotel.com<br>
+        <i class="fa-solid fa-location-dot"></i> 123 Main Street, Billings, MT
+      </p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

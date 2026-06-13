@@ -1,0 +1,589 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #1f2933;
+  background-color: #faf7f2;
+}
+
+/* HEADER */
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 8%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo img {
+  height: 90px;
+  width: auto;
+  display: block;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+nav a {
+  color: #1f2933;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+nav a:hover {
+  color: #c7792b;
+}
+
+/* BUTTONS */
+.btn,
+.booking-form button,
+.room-card button {
+  background-color: #c7792b;
+  color: white;
+  padding: 13px 24px;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.btn:hover,
+.booking-form button:hover,
+.room-card button:hover {
+  background-color: #a96221;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* HERO */
+.hero {
+  min-height: 560px;
+  display: flex;
+  align-items: center;
+  padding: 70px 8%;
+  background:
+    linear-gradient(rgba(20, 30, 45, 0.65), rgba(20, 30, 45, 0.65)),
+    url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1600&q=80");
+  background-size: cover;
+  background-position: center;
+  color: white;
+}
+
+.hero-content {
+  max-width: 750px;
+  animation: fadeSlideUp 0.9s ease forwards;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #f3c98b;
+}
+
+.hero h1 {
+  font-size: 54px;
+  margin: 10px 0;
+  line-height: 1.05;
+}
+
+.hero p {
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+/* BOOKING FORM */
+.booking-form {
+  margin-top: 35px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  background-color: white;
+  color: #222;
+  padding: 22px;
+  border-radius: 12px;
+  max-width: 900px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+  animation: fadeIn 1.2s ease forwards;
+}
+
+.booking-form label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.booking-form input,
+.booking-form select {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+/* AVAILABILITY RESULTS */
+.availability-results {
+  padding: 50px 8%;
+  text-align: center;
+  background-color: #faf7f2;
+}
+
+.availability-results h2 {
+  font-size: 34px;
+  color: #1e3a5f;
+  margin-bottom: 10px;
+}
+
+#availabilityMessage {
+  font-size: 17px;
+  margin-bottom: 25px;
+}
+
+.available-room-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 25px;
+}
+
+.available-room-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: left;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.status-confirmed {
+  background-color: #dff5e1;
+  color: #1f7a35;
+}
+
+.status-cancelled {
+  background-color: #f5dddd;
+  color: #9b1c1c;
+}
+
+.available-room-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.14);
+}
+
+.available-room-card h3 {
+  color: #1e3a5f;
+  margin-top: 0;
+}
+
+.available-room-card .price {
+  font-size: 21px;
+  font-weight: bold;
+  color: #1e3a5f;
+}
+
+.available-room-card button {
+  background-color: #c7792b;
+  color: white;
+  padding: 13px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.available-room-card button:hover {
+  background-color: #a96221;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* CANCELLED BOOKINGS */
+.cancelled-booking {
+  opacity: 0.65;
+  background-color: #f1f1f1;
+}
+
+.cancelled-booking h3,
+.cancelled-booking p {
+  color: #6b7280;
+}
+
+.cancelled-booking button {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.cancelled-booking button:hover {
+  background-color: #9ca3af;
+  transform: none;
+  box-shadow: none;
+}
+
+/* GUEST BOOKING FORM */
+.guest-booking-form {
+  display: none;
+  padding: 50px 8%;
+  background-color: white;
+  text-align: center;
+}
+
+.guest-booking-form h2 {
+  font-size: 34px;
+  color: #1e3a5f;
+  margin-bottom: 10px;
+}
+
+#selectedRoomMessage {
+  font-size: 17px;
+  margin-bottom: 25px;
+}
+
+#bookingConfirmationMessage {
+  font-size: 17px;
+  font-weight: bold;
+  color: #1e3a5f;
+  margin-bottom: 25px;
+}
+
+.guest-booking-form form {
+  max-width: 650px;
+  margin: 0 auto;
+  background-color: #faf7f2;
+  padding: 28px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.guest-booking-form label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.guest-booking-form input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 18px;
+}
+
+.guest-booking-form button {
+  background-color: #c7792b;
+  color: white;
+  padding: 13px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.guest-booking-form button:hover {
+  background-color: #a96221;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+/* FEATURES */
+.features {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 40px 8%;
+  text-align: center;
+  gap: 20px;
+}
+
+.features div {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.features i {
+  font-size: 30px;
+  color: #c7792b;
+  margin-bottom: 10px;
+}
+
+.features div:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.14);
+}
+
+/* ROOMS */
+.rooms,
+.amenities,
+.reviews {
+  padding: 50px 8%;
+  text-align: center;
+}
+
+.rooms h2,
+.amenities h2,
+.location h2,
+.reviews h2 {
+  font-size: 34px;
+  color: #1e3a5f;
+  margin-bottom: 10px;
+}
+
+.room-grid {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.room-card {
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  text-align: left;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.room-img {
+  height: 210px;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.4s ease;
+}
+
+.room-card:hover {
+  transform: translateY(-8px);
+}
+
+.room-card:hover .room-img {
+  transform: scale(1.05);
+}
+
+.room-one {
+  background-image: url("https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=80");
+}
+
+.room-two {
+  background-image: url("https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=900&q=80");
+}
+
+.room-three {
+  background-image: url("https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=900&q=80");
+}
+
+.room-card h3,
+.room-card p,
+.room-card button {
+  margin-left: 18px;
+  margin-right: 18px;
+}
+
+.price {
+  font-size: 21px;
+  font-weight: bold;
+  color: #1e3a5f;
+}
+
+/* AMENITIES */
+.amenity-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.amenity-grid div {
+  background: white;
+  padding: 25px 12px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.amenity-grid div:hover {
+  transform: translateY(-8px);
+}
+
+.amenity-grid i {
+  font-size: 28px;
+  color: #c7792b;
+}
+
+/* LOCATION */
+.location {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+  padding: 50px 8%;
+  background-color: white;
+}
+
+.map-placeholder {
+  background-color: #ddd;
+  border-radius: 10px;
+  min-height: 280px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* REVIEWS */
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-top: 25px;
+}
+
+.review-grid div {
+  background: white;
+  padding: 24px;
+  border-radius: 10px;
+  text-align: left;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+/* CTA */
+.cta {
+  margin: 50px 8%;
+  padding: 35px;
+  background-color: #1e3a5f;
+  color: white;
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* FOOTER */
+footer {
+  background-color: #1f2933;
+  color: white;
+  padding: 40px 8%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* ANIMATIONS */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .logo img {
+    height: 65px;
+  }
+
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 15px;
+  }
+
+  .booking-form,
+  .features,
+  .room-grid,
+  .amenity-grid,
+  .location,
+  .review-grid,
+  .available-room-grid,
+  footer {
+    grid-template-columns: 1fr;
+  }
+
+  .cta {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .hero h1 {
+    font-size: 36px;
+  }
+}
+
+.hidden-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.hidden-scroll.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.admin-search {
+  max-width: 500px;
+  margin: 20px auto;
+  text-align: left;
+}
+
+.admin-search label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #1e3a5f;
+}
+
+.admin-search input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+}

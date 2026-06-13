@@ -1,0 +1,29 @@
+# Java / Spring Boot
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven wrapper cache
+.mvn/wrapper/maven-wrapper.jar
+
+# Eclipse
+.metadata/
+.settings/
+.project
+.classpath
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+application-local.properties
