@@ -19,47 +19,62 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class RoomServiceImplTest {
 
-    @Mock
-    private RoomRepository roomRepository;
+	@Mock
+	private RoomRepository roomRepository;
 
-    @Mock
-    private BookingRepository bookingRepository;
+	@Mock
+	private BookingRepository bookingRepository;
 
-    @InjectMocks
-    private RoomServiceImpl roomService;
+	@InjectMocks
+	private RoomServiceImpl roomService;
 
-    @Test
-    void createRoomShouldRejectDuplicateRoomNumber() {
-        RoomRequest request = new RoomRequest();
-        request.setRoomNumber("401");
-        request.setRoomType("Single Room");
-        request.setPricePerNight(79.00);
-        request.setMaxGuests(1);
-        request.setDescription("Cozy single room with one twin bed.");
+	@Test
+	void createRoomShouldRejectDuplicateRoomNumber() {
+		RoomRequest request = new RoomRequest();
+		request.setRoomNumber("401");
+		request.setRoomType("Single Room");
+		request.setPricePerNight(79.00);
+		request.setMaxGuests(1);
+		request.setDescription("Cozy single room with one twin bed.");
 
-        when(roomRepository.existsByRoomNumber("401")).thenReturn(true);
+		when(roomRepository.existsByRoomNumber("401")).thenReturn(true);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> roomService.createRoom(request)
-        );
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+				() -> roomService.createRoom(request));
 
-        assertEquals("Room number already exists", exception.getMessage());
-    }
+		assertEquals("Room number already exists", exception.getMessage());
+	}
 
-    @Test
-    void createRoomShouldSaveValidRoom() {
-        RoomRequest request = new RoomRequest();
-        request.setRoomNumber("501");
-        request.setRoomType("Test Room");
-        request.setPricePerNight(99.00);
-        request.setMaxGuests(2);
-        request.setDescription("Test room description.");
+	@Test
+	void createRoomShouldSaveValidRoom() {
+		RoomRequest request = new RoomRequest();
+		request.setRoomNumber("501");
+		request.setRoomType("Test Room");
+		request.setPricePerNight(99.00);
+		request.setMaxGuests(2);
+		request.setDescription("Test room description.");
 
-        when(roomRepository.existsByRoomNumber("501")).thenReturn(false);
+		when(roomRepository.existsByRoomNumber("501")).thenReturn(false);
 
-        roomService.createRoom(request);
+		roomService.createRoom(request);
 
-        verify(roomRepository).save(any());
-    }
+		verify(roomRepository).save(any());
+	}
+
+	@Test
+	void createRoomShouldRejectInvalidPrice() {
+		RoomRequest request = new RoomRequest();
+		request.setRoomNumber("502");
+		request.setRoomType("Test Room");
+		request.setPricePerNight(0.00);
+		request.setMaxGuests(2);
+		request.setDescription("Test room description.");
+
+		when(roomRepository.existsByRoomNumber("502")).thenReturn(false);
+
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+				() -> roomService.createRoom(request));
+
+		assertEquals("Price per night must be greater than 0", exception.getMessage());
+	}
 }
