@@ -2,6 +2,8 @@ package com.trent.motelbooking;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.trent.motelbooking.dto.RoomRequest;
@@ -43,5 +45,21 @@ class RoomServiceImplTest {
         );
 
         assertEquals("Room number already exists", exception.getMessage());
+    }
+
+    @Test
+    void createRoomShouldSaveValidRoom() {
+        RoomRequest request = new RoomRequest();
+        request.setRoomNumber("501");
+        request.setRoomType("Test Room");
+        request.setPricePerNight(99.00);
+        request.setMaxGuests(2);
+        request.setDescription("Test room description.");
+
+        when(roomRepository.existsByRoomNumber("501")).thenReturn(false);
+
+        roomService.createRoom(request);
+
+        verify(roomRepository).save(any());
     }
 }
