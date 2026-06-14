@@ -77,4 +77,54 @@ class RoomServiceImplTest {
 
 		assertEquals("Price per night must be greater than 0", exception.getMessage());
 	}
+
+	@Test
+	void createRoomShouldRejectInvalidMaxGuests() {
+		RoomRequest request = new RoomRequest();
+		request.setRoomNumber("503");
+		request.setRoomType("Test Room");
+		request.setPricePerNight(99.00);
+		request.setMaxGuests(0);
+		request.setDescription("Test room description.");
+
+		when(roomRepository.existsByRoomNumber("503")).thenReturn(false);
+
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+				() -> roomService.createRoom(request));
+
+		assertEquals("Max guests must be at least 1", exception.getMessage());
+	}
+
+	@Test
+	void createRoomShouldRejectBlankDescription() {
+		RoomRequest request = new RoomRequest();
+		request.setRoomNumber("504");
+		request.setRoomType("Test Room");
+		request.setPricePerNight(99.00);
+		request.setMaxGuests(2);
+		request.setDescription("");
+
+		when(roomRepository.existsByRoomNumber("504")).thenReturn(false);
+
+		IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+				() -> roomService.createRoom(request));
+
+		assertEquals("Description is required", exception.getMessage());
+	}
+
+	@Test
+	void createRoomShouldTrimTextFieldsBeforeSaving() {
+		RoomRequest request = new RoomRequest();
+		request.setRoomNumber(" 505 ");
+		request.setRoomType(" Test Room ");
+		request.setPricePerNight(99.00);
+		request.setMaxGuests(2);
+		request.setDescription(" Test room description. ");
+
+		when(roomRepository.existsByRoomNumber("505")).thenReturn(false);
+
+		roomService.createRoom(request);
+
+		verify(roomRepository).save(any());
+	}
 }
