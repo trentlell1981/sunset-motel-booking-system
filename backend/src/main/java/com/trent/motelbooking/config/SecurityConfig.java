@@ -1,5 +1,6 @@
 package com.trent.motelbooking.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -13,24 +14,37 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.cors(Customizer.withDefaults()).csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/rooms/**").permitAll()
-						.requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/rooms/**").authenticated()
-						.requestMatchers(org.springframework.http.HttpMethod.POST, "/api/rooms").authenticated()
-						.requestMatchers(org.springframework.http.HttpMethod.POST, "/api/bookings").permitAll()
-						.requestMatchers("/api/bookings/**").authenticated().anyRequest().permitAll())
-				.httpBasic(Customizer.withDefaults());
+    @Value("${app.admin.username}")
+    private String adminUsername;
 
-		return http.build();
-	}
+    @Value("${app.admin.password}")
+    private String adminPassword;
 
-	@Bean
-	public UserDetailsService userDetailsService() {
-		UserDetails admin = User.withUsername("admin").password("{noop}admin123").roles("ADMIN").build();
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/rooms/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/rooms/**").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/rooms").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/bookings").permitAll()
+                        .requestMatchers("/api/bookings/**").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .httpBasic(Customizer.withDefaults());
 
-		return new InMemoryUserDetailsManager(admin);
-	}
+        return http.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails admin = User.withUsername(adminUsername)
+                .password("{noop}" + adminPassword)
+                .roles("ADMIN")
+                .build();
+
+        return new InMemoryUserDetailsManager(admin);
+    }
 }
