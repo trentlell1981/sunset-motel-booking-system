@@ -1,25 +1,26 @@
+const API_BASE_URL = "http://localhost:8080";
+
 function showRoom(name, price, details) {
-  alert(
-    name + "\n" +
-    price + "\n\n" +
-    details
-  );
+  alert(`${name}\n${price}\n\n${details}`);
 }
 
 function selectRoom(roomId, roomType, roomNumber) {
-  document.getElementById("selectedRoomId").value = roomId;
+  const selectedRoomIdInput = document.getElementById("selectedRoomId");
+  const selectedRoomMessage = document.getElementById("selectedRoomMessage");
+  const bookingConfirmationMessage = document.getElementById("bookingConfirmationMessage");
+  const guestBookingForm = document.getElementById("guestBookingForm");
+  const submitButton = document.querySelector("#guestBookingForm button");
 
-  document.getElementById("selectedRoomMessage").textContent =
-    `You selected Room ${roomNumber}: ${roomType}`;
+  selectedRoomIdInput.value = roomId;
+  selectedRoomMessage.textContent = `You selected Room ${roomNumber}: ${roomType}`;
+  bookingConfirmationMessage.textContent = "";
 
-  document.getElementById("bookingConfirmationMessage").textContent = "";
+  guestBookingForm.style.display = "block";
 
-  document.getElementById("guestBookingForm").style.display = "block";
+  submitButton.disabled = false;
+  submitButton.textContent = "Confirm Booking";
 
-  document.querySelector("#guestBookingForm button").disabled = false;
-  document.querySelector("#guestBookingForm button").textContent = "Confirm Booking";
-
-  document.getElementById("guestBookingForm").scrollIntoView({
+  guestBookingForm.scrollIntoView({
     behavior: "smooth"
   });
 }
@@ -27,42 +28,37 @@ function selectRoom(roomId, roomType, roomNumber) {
 function submitBooking(e) {
   e.preventDefault();
 
+  const bookingConfirmationMessage = document.getElementById("bookingConfirmationMessage");
+  const submitButton = document.querySelector("#guestBookingForm button");
+
   const bookingRequest = {
-    guestName: document.getElementById("guestName").value,
-    guestEmail: document.getElementById("guestEmail").value,
-    guestPhone: document.getElementById("guestPhone").value,
+    guestName: document.getElementById("guestName").value.trim(),
+    guestEmail: document.getElementById("guestEmail").value.trim(),
+    guestPhone: document.getElementById("guestPhone").value.trim(),
     guestCount: Number(document.getElementById("guests").value),
     roomId: Number(document.getElementById("selectedRoomId").value),
     checkInDate: document.getElementById("checkIn").value,
     checkOutDate: document.getElementById("checkOut").value
   };
 
-  fetch("http://localhost:8080/api/bookings", {
+  fetch(`${API_BASE_URL}/api/bookings`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(bookingRequest)
   })
-    .then(response => {
-      if (!response.ok) {
-        return response.text().then(message => {
-          throw new Error(message);
-        });
-      }
-
-      return response.json();
-    })
+    .then(handleResponse)
     .then(booking => {
-      document.getElementById("bookingConfirmationMessage").textContent =
+      bookingConfirmationMessage.textContent =
         `Booking confirmed for ${booking.guestName}. Confirmation number: ${booking.id}.`;
 
       document.getElementById("guestName").value = "";
       document.getElementById("guestEmail").value = "";
       document.getElementById("guestPhone").value = "";
 
-      document.querySelector("#guestBookingForm button").disabled = true;
-      document.querySelector("#guestBookingForm button").textContent = "Booking Confirmed";
+      submitButton.disabled = true;
+      submitButton.textContent = "Booking Confirmed";
     })
     .catch(error => {
       alert(error.message);
@@ -75,6 +71,10 @@ function checkAvailability(e) {
   const checkIn = document.getElementById("checkIn").value;
   const checkOut = document.getElementById("checkOut").value;
   const guests = document.getElementById("guests").value;
+  const message = document.getElementById("availabilityMessage");
+  const roomGrid = document.getElementById("availableRoomGrid");
+  const bookingConfirmationMessage = document.getElementById("bookingConfirmationMessage");
+  const guestBookingForm = document.getElementById("guestBookingForm");
 
   if (!checkIn || !checkOut) {
     alert("Please select check-in and check-out dates.");
@@ -86,15 +86,18 @@ function checkAvailability(e) {
     return;
   }
 
-  fetch(`http://localhost:8080/api/rooms/available?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`)
-    .then(response => response.json())
+  const availabilityUrl =
+    `${API_BASE_URL}/api/rooms/available` +
+    `?checkIn=${encodeURIComponent(checkIn)}` +
+    `&checkOut=${encodeURIComponent(checkOut)}` +
+    `&guests=${encodeURIComponent(guests)}`;
+
+  fetch(availabilityUrl)
+    .then(handleResponse)
     .then(rooms => {
-      console.log("Available rooms:", rooms);
-
-      const message = document.getElementById("availabilityMessage");
-      const roomGrid = document.getElementById("availableRoomGrid");
-
       roomGrid.innerHTML = "";
+      bookingConfirmationMessage.textContent = "";
+      guestBookingForm.style.display = "none";
 
       if (rooms.length === 0) {
         message.textContent = "No rooms are available for those dates.";
@@ -113,7 +116,7 @@ function checkAvailability(e) {
           <p><strong>Max Guests:</strong> ${room.maxGuests}</p>
           <p><strong>Description:</strong> ${room.description}</p>
           <p class="price">$${room.pricePerNight} / night</p>
-          <button onclick="selectRoom(${room.id}, '${room.roomType}', '${room.roomNumber}')">
+          <button onclick='selectRoom(${room.id}, ${JSON.stringify(room.roomType)}, ${JSON.stringify(room.roomNumber)})'>
             Book This Room
           </button>
         `;
@@ -127,28 +130,9 @@ function checkAvailability(e) {
     })
     .catch(error => {
       console.error("Error checking availability:", error);
-      alert("Something went wrong while checking availability.");
+      alert(error.message || "Something went wrong while checking availability.");
     });
 }
-
-const scrollItems = document.querySelectorAll(
-  ".features div, .room-card, .amenity-grid div, .location, .review-grid div, .cta"
-);
-
-const scrollObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add("show");
-    }
-  });
-}, {
-  threshold: 0.2
-});
-
-scrollItems.forEach(item => {
-  item.classList.add("hidden-scroll");
-  scrollObserver.observe(item);
-});
 
 function getRoomImageClass(roomType) {
   if (roomType.includes("Double")) {
@@ -163,14 +147,13 @@ function getRoomImageClass(roomType) {
 }
 
 function loadRooms() {
-  fetch("http://localhost:8080/api/rooms")
-    .then(response => response.json())
+  fetch(`${API_BASE_URL}/api/rooms`)
+    .then(handleResponse)
     .then(rooms => {
       const roomGrid = document.getElementById("roomGrid");
+      const uniqueRoomTypes = [];
 
       roomGrid.innerHTML = "";
-
-      const uniqueRoomTypes = [];
 
       rooms.forEach(room => {
         const alreadyAdded = uniqueRoomTypes.some(
@@ -192,7 +175,7 @@ function loadRooms() {
           <p><i class="fa-solid fa-bed"></i> ${room.maxGuests} Guests</p>
           <p><i class="fa-solid fa-wifi"></i> ${room.description}</p>
           <p class="price">$${room.pricePerNight} / night</p>
-          <button onclick="showRoom('${room.roomType}', '$${room.pricePerNight} / night', '${room.description}')">
+          <button onclick='showRoom(${JSON.stringify(room.roomType)}, "$${room.pricePerNight} / night", ${JSON.stringify(room.description)})'>
             View Details
           </button>
         `;
@@ -204,5 +187,34 @@ function loadRooms() {
       console.error("Error loading rooms:", error);
     });
 }
+
+function handleResponse(response) {
+  if (!response.ok) {
+    return response.text().then(message => {
+      throw new Error(message || "Request failed.");
+    });
+  }
+
+  return response.json();
+}
+
+const scrollItems = document.querySelectorAll(
+  ".features div, .room-card, .amenity-grid div, .location, .review-grid div, .cta"
+);
+
+const scrollObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("show");
+    }
+  });
+}, {
+  threshold: 0.2
+});
+
+scrollItems.forEach(item => {
+  item.classList.add("hidden-scroll");
+  scrollObserver.observe(item);
+});
 
 loadRooms();
