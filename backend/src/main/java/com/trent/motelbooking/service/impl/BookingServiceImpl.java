@@ -1,119 +1,171 @@
 package com.trent.motelbooking.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.trent.motelbooking.dto.BookingRequest;
 import com.trent.motelbooking.entity.Booking;
 import com.trent.motelbooking.entity.Room;
 import com.trent.motelbooking.repository.BookingRepository;
 import com.trent.motelbooking.repository.RoomRepository;
 import com.trent.motelbooking.service.BookingService;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 
 @Service
 public class BookingServiceImpl implements BookingService {
 
-	private final BookingRepository bookingRepository;
-	private final RoomRepository roomRepository;
+    private static final String STATUS_CONFIRMED = "CONFIRMED";
+    private static final String STATUS_CANCELLED = "CANCELLED";
 
-	public BookingServiceImpl(BookingRepository bookingRepository, RoomRepository roomRepository) {
-		this.bookingRepository = bookingRepository;
-		this.roomRepository = roomRepository;
-	}
+    private final BookingRepository bookingRepository;
+    private final RoomRepository roomRepository;
 
-	@Override
-	public Booking createBooking(BookingRequest bookingRequest) {
-		if (bookingRequest.getGuestName() == null || bookingRequest.getGuestName().isBlank()) {
-			throw new IllegalArgumentException("Guest name is required");
-		}
+    public BookingServiceImpl(BookingRepository bookingRepository, RoomRepository roomRepository) {
+        this.bookingRepository = bookingRepository;
+        this.roomRepository = roomRepository;
+    }
 
-		if (bookingRequest.getGuestEmail() == null || bookingRequest.getGuestEmail().isBlank()) {
-			throw new IllegalArgumentException("Guest email is required");
-		}
+    @Override
+    public Booking createBooking(BookingRequest bookingRequest) {
+        validateBookingRequest(bookingRequest);
 
-		if (bookingRequest.getRoomId() == null) {
-			throw new IllegalArgumentException("Room is required");
-		}
+        Room room = findRoomById(bookingRequest.getRoomId());
 
-		if (bookingRequest.getGuestCount() == null || bookingRequest.getGuestCount() < 1) {
-			throw new IllegalArgumentException("Guest count is required");
-		}
+        validateRoomIsActive(room);
+        validateGuestCountFitsRoom(bookingRequest.getGuestCount(), room);
 
-		if (bookingRequest.getCheckInDate() == null || bookingRequest.getCheckInDate().isBlank()) {
-			throw new IllegalArgumentException("Check-in date is required");
-		}
+        LocalDate checkInDate = parseDate(bookingRequest.getCheckInDate(), "Check-in date is invalid");
+        LocalDate checkOutDate = parseDate(bookingRequest.getCheckOutDate(), "Check-out date is invalid");
 
-		if (bookingRequest.getCheckOutDate() == null || bookingRequest.getCheckOutDate().isBlank()) {
-			throw new IllegalArgumentException("Check-out date is required");
-		}
+        validateDateRange(checkInDate, checkOutDate);
+        validateRoomAvailability(bookingRequest.getRoomId(), checkInDate, checkOutDate);
 
-		Room room = roomRepository.findById(bookingRequest.getRoomId())
-				.orElseThrow(() -> new IllegalArgumentException("Room not found"));
+        long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        double totalPrice = nights * room.getPricePerNight();
 
-		if (!room.getActive()) {
-			throw new IllegalArgumentException("Room is not available");
-		}
+        Booking booking = new Booking();
+        booking.setGuestName(bookingRequest.getGuestName().trim());
+        booking.setGuestEmail(bookingRequest.getGuestEmail().trim());
+        booking.setGuestPhone(trimOrNull(bookingRequest.getGuestPhone()));
+        booking.setGuestCount(bookingRequest.getGuestCount());
+        booking.setRoom(room);
+        booking.setCheckInDate(checkInDate);
+        booking.setCheckOutDate(checkOutDate);
+        booking.setTotalPrice(totalPrice);
+        booking.setStatus(STATUS_CONFIRMED);
+        booking.setCreatedAt(LocalDateTime.now());
 
-		if (bookingRequest.getGuestCount() > room.getMaxGuests()) {
-			throw new IllegalArgumentException("Guest count exceeds room capacity");
-		}
+        return bookingRepository.save(booking);
+    }
 
-		LocalDate checkInDate = LocalDate.parse(bookingRequest.getCheckInDate());
-		LocalDate checkOutDate = LocalDate.parse(bookingRequest.getCheckOutDate());
+    @Override
+    public Booking cancelBooking(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
-		if (!checkOutDate.isAfter(checkInDate)) {
-			throw new IllegalArgumentException("Check-out date must be after check-in date");
-		}
+        if (STATUS_CANCELLED.equals(booking.getStatus())) {
+            throw new IllegalArgumentException("Booking is already cancelled");
+        }
 
-		boolean roomAlreadyBooked = bookingRepository.existsByRoomIdAndStatusAndCheckInDateBeforeAndCheckOutDateAfter(
-				bookingRequest.getRoomId(), "CONFIRMED", checkOutDate, checkInDate);
+        booking.setStatus(STATUS_CANCELLED);
 
-		if (roomAlreadyBooked) {
-			throw new IllegalArgumentException("Room is already booked for those dates");
-		}
+        return bookingRepository.save(booking);
+    }
 
-		long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+    @Override
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
+    }
 
-		if (nights <= 0) {
-			throw new IllegalArgumentException("Booking must be at least one night");
-		}
+    private void validateBookingRequest(BookingRequest bookingRequest) {
+        if (bookingRequest == null) {
+            throw new IllegalArgumentException("Booking request is required");
+        }
 
-		double totalPrice = nights * room.getPricePerNight();
+        if (bookingRequest.getGuestName() == null || bookingRequest.getGuestName().isBlank()) {
+            throw new IllegalArgumentException("Guest name is required");
+        }
 
-		Booking booking = new Booking();
-		booking.setGuestName(bookingRequest.getGuestName());
-		booking.setGuestEmail(bookingRequest.getGuestEmail());
-		booking.setGuestPhone(bookingRequest.getGuestPhone());
-		booking.setGuestCount(bookingRequest.getGuestCount());
-		booking.setRoom(room);
-		booking.setCheckInDate(checkInDate);
-		booking.setCheckOutDate(checkOutDate);
-		booking.setTotalPrice(totalPrice);
-		booking.setStatus("CONFIRMED");
-		booking.setCreatedAt(LocalDateTime.now());
+        if (bookingRequest.getGuestEmail() == null || bookingRequest.getGuestEmail().isBlank()) {
+            throw new IllegalArgumentException("Guest email is required");
+        }
 
-		return bookingRepository.save(booking);
-	}
+        if (bookingRequest.getRoomId() == null) {
+            throw new IllegalArgumentException("Room is required");
+        }
 
-	@Override
-	public Booking cancelBooking(Long id) {
-		Booking booking = bookingRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+        if (bookingRequest.getGuestCount() == null || bookingRequest.getGuestCount() < 1) {
+            throw new IllegalArgumentException("Guest count is required");
+        }
 
-		if ("CANCELLED".equals(booking.getStatus())) {
-			throw new IllegalArgumentException("Booking is already cancelled");
-		}
+        if (bookingRequest.getCheckInDate() == null || bookingRequest.getCheckInDate().isBlank()) {
+            throw new IllegalArgumentException("Check-in date is required");
+        }
 
-		booking.setStatus("CANCELLED");
+        if (bookingRequest.getCheckOutDate() == null || bookingRequest.getCheckOutDate().isBlank()) {
+            throw new IllegalArgumentException("Check-out date is required");
+        }
+    }
 
-		return bookingRepository.save(booking);
-	}
+    private Room findRoomById(Long roomId) {
+        return roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+    }
 
-	@Override
-	public List<Booking> getAllBookings() {
-		return bookingRepository.findAll();
-	}
+    private void validateRoomIsActive(Room room) {
+        if (!room.getActive()) {
+            throw new IllegalArgumentException("Room is not available");
+        }
+    }
+
+    private void validateGuestCountFitsRoom(Integer guestCount, Room room) {
+        if (guestCount > room.getMaxGuests()) {
+            throw new IllegalArgumentException("Guest count exceeds room capacity");
+        }
+    }
+
+    private LocalDate parseDate(String date, String errorMessage) {
+        try {
+            return LocalDate.parse(date);
+        } catch (DateTimeParseException ex) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
+
+    private void validateDateRange(LocalDate checkInDate, LocalDate checkOutDate) {
+        if (!checkOutDate.isAfter(checkInDate)) {
+            throw new IllegalArgumentException("Check-out date must be after check-in date");
+        }
+
+        long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+
+        if (nights < 1) {
+            throw new IllegalArgumentException("Booking must be at least one night");
+        }
+    }
+
+    private void validateRoomAvailability(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
+        boolean roomAlreadyBooked = bookingRepository.existsByRoomIdAndStatusAndCheckInDateBeforeAndCheckOutDateAfter(
+                roomId,
+                STATUS_CONFIRMED,
+                checkOutDate,
+                checkInDate
+        );
+
+        if (roomAlreadyBooked) {
+            throw new IllegalArgumentException("Room is already booked for those dates");
+        }
+    }
+
+    private String trimOrNull(String value) {
+        if (value == null) {
+            return null;
+        }
+
+        return value.trim();
+    }
 }
