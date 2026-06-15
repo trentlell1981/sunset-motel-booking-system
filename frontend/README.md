@@ -4,6 +4,8 @@ Sunset Motel Booking System is a full-stack motel booking application built with
 
 The application allows customers to search for available motel rooms by check-in date, check-out date, and guest count. Customers can select an available room, enter guest information, and submit a booking. The system also includes a protected admin dashboard where bookings and rooms can be managed.
 
+This project was built as a local development and portfolio project to demonstrate full-stack application structure, REST API development, database-backed room availability logic, admin authentication, and automated service-layer testing.
+
 ## Features
 
 ### Customer Website
@@ -30,6 +32,8 @@ The application allows customers to search for available motel rooms by check-in
 * Validate guest count against room capacity
 * Prevent overlapping confirmed bookings
 * View all bookings from the admin dashboard
+* Search bookings from the admin dashboard
+* Filter bookings by all, confirmed, or cancelled status
 * Cancel confirmed bookings
 * Prevent already-cancelled bookings from being cancelled again
 * Cancelled bookings are visually marked in the admin dashboard
@@ -37,13 +41,17 @@ The application allows customers to search for available motel rooms by check-in
 ### Admin Dashboard
 
 * Admin login page
+
 * Protected admin booking endpoints
+
 * Admin logout
+
 * Admin booking filters:
 
   * Show All
   * Show Confirmed
   * Show Cancelled
+
 * Admin booking search by:
 
   * Guest name
@@ -54,34 +62,48 @@ The application allows customers to search for available motel rooms by check-in
   * Room type
   * Date
   * Status
+
 * Status badges for confirmed, cancelled, active, and inactive records
 
 ### Room Management
 
 * View all rooms in the admin dashboard
+
 * Add new rooms
+
 * Prevent duplicate room numbers
+
 * Edit room details:
 
   * Room type
   * Price per night
   * Max guests
   * Description
+
 * Deactivate rooms
+
 * Reactivate rooms
+
 * Active/inactive room status badges
+
 * Inactive rooms are hidden from customer availability searches
+
 * Backend validation for room creation and updates
-* Input trimming for cleaner room data
+
+* Input trimming for cleaner room and booking data
 
 ### Security
 
 * Spring Security added to the backend
+
+* HTTP Basic Auth used for protected admin endpoints
+
 * Public endpoints:
 
   * `GET /api/rooms`
   * `GET /api/rooms/available`
   * `POST /api/bookings`
+
 * Protected admin endpoints:
 
   * `GET /api/bookings`
@@ -90,8 +112,12 @@ The application allows customers to search for available motel rooms by check-in
   * `PUT /api/rooms/{id}`
   * `PUT /api/rooms/{id}/deactivate`
   * `PUT /api/rooms/{id}/reactivate`
+
 * Admin credentials are configured through environment-variable fallbacks
+
 * Database connection settings are configured through environment-variable fallbacks
+
+* CORS allowed origins are configurable through environment-variable fallbacks
 
 ## Tech Stack
 
@@ -292,9 +318,46 @@ spring.datasource.password=${DB_PASSWORD:root}
 
 app.admin.username=${ADMIN_USERNAME:admin}
 app.admin.password=${ADMIN_PASSWORD:admin123}
+
+app.cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:5500,http://127.0.0.1:5500}
 ```
 
 Local development uses the fallback values. Production deployments can provide real values through environment variables.
+
+### Backend Environment Variables
+
+| Variable               | Purpose                                                             |
+| ---------------------- | ------------------------------------------------------------------- |
+| `DB_URL`               | MySQL database connection URL                                       |
+| `DB_USERNAME`          | MySQL username                                                      |
+| `DB_PASSWORD`          | MySQL password                                                      |
+| `ADMIN_USERNAME`       | Admin username for HTTP Basic Auth                                  |
+| `ADMIN_PASSWORD`       | Admin password for HTTP Basic Auth                                  |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated list of frontend URLs allowed to access the backend |
+
+Example production CORS value:
+
+```text
+CORS_ALLOWED_ORIGINS=https://your-frontend-site.netlify.app
+```
+
+## Frontend API Configuration
+
+The frontend JavaScript files use a centralized API base URL.
+
+In `frontend/script.js` and `frontend/admin.js`:
+
+```javascript
+const API_BASE_URL = "http://localhost:8080";
+```
+
+For local development, this points to the Spring Boot backend running on `localhost:8080`.
+
+For deployment, this value would need to be updated to the deployed backend URL, such as:
+
+```javascript
+const API_BASE_URL = "https://your-backend-service.onrender.com";
+```
 
 ## Local Development Setup
 
@@ -312,15 +375,16 @@ http://localhost:8080
 
 ### Frontend
 
-1. Open the frontend folder in VS Code.
-2. Start Live Server.
-3. Open the customer website:
+1. Open the project folder in VS Code.
+2. Open the `frontend` folder.
+3. Start Live Server.
+4. Open the customer website:
 
 ```text
 index.html
 ```
 
-4. Open the admin dashboard:
+5. Open the admin dashboard:
 
 ```text
 admin.html
@@ -348,8 +412,12 @@ Test coverage includes:
 * Room update validation
 * Room deactivate/reactivate behavior
 * Booking request validation
+* Invalid date handling
+* Room capacity validation
+* Inactive room rejection
 * Double-booking prevention
 * Booking cancellation logic
+* Already-cancelled booking rejection
 
 Current test classes include:
 
@@ -386,6 +454,8 @@ Current limitations include:
 * No production hosting configuration yet
 * No pagination for large booking lists
 * No customer account system
+* No controller or security integration tests yet
+* Frontend API base URL must be manually changed for deployment
 
 ## Future Improvements
 
@@ -405,3 +475,4 @@ Possible future improvements include:
 * More controller and security tests
 * Frontend form validation improvements
 * Better admin dashboard layout
+* Use build-time environment configuration for frontend API URLs
