@@ -1,41 +1,15 @@
 package com.trent.motelbooking.dto;
 
+import lombok.Data;
+
+@Data
 public class RoomUpdateRequest {
 
-	private String roomType;
-	private Double pricePerNight;
-	private Integer maxGuests;
-	private String description;
+    private String roomType;
 
-	public String getRoomType() {
-		return roomType;
-	}
+    private Double pricePerNight;
 
-	public void setRoomType(String roomType) {
-		this.roomType = roomType;
-	}
+    private Integer maxGuests;
 
-	public Double getPricePerNight() {
-		return pricePerNight;
-	}
-
-	public void setPricePerNight(Double pricePerNight) {
-		this.pricePerNight = pricePerNight;
-	}
-
-	public Integer getMaxGuests() {
-		return maxGuests;
-	}
-
-	public void setMaxGuests(Integer maxGuests) {
-		this.maxGuests = maxGuests;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    private String description;
 }

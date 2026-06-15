@@ -5,17 +5,17 @@ import lombok.Data;
 @Data
 public class BookingRequest {
 
-	private String guestName;
+    private String guestName;
 
-	private String guestEmail;
+    private String guestEmail;
 
-	private String guestPhone;
-	
-	private Integer guestCount;
+    private String guestPhone;
 
-	private Long roomId;
+    private Integer guestCount;
 
-	private String checkInDate;
+    private Long roomId;
 
-	private String checkOutDate;
+    private String checkInDate;
+
+    private String checkOutDate;
 }
